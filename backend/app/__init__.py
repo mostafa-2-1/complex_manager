@@ -38,7 +38,7 @@ def create_app():
         return jsonify({
             "success": False,
             "message": message
-        }), 422
+        }), 401
     
     # Initialize JWT (if your auth routes are using it)
     # jwt.init_app(app) 

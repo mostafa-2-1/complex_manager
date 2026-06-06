@@ -13,10 +13,16 @@ class Config:
 
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'fallback-jwt-secret')
 
-    JWT_EXPIRATION_HOURS = int(
-        os.getenv('JWT_EXPIRATION_HOURS', 24)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(
+        minutes=1
     )
 
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(
-        hours=JWT_EXPIRATION_HOURS
-    )
+    # JWT_EXPIRATION_HOURS = int(
+    #     os.getenv('JWT_EXPIRATION_HOURS', 24)
+    # )
+
+    # JWT_ACCESS_TOKEN_EXPIRES = timedelta(
+    #     hours=JWT_EXPIRATION_HOURS
+    # )
+
+  
