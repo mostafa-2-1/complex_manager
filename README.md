@@ -1,4 +1,4 @@
-# 4. Assumptions & Design Decisions
+# Assumptions & Design Decisions
 
 ## Authentication & Security
 
@@ -215,9 +215,9 @@ User interface elements are conditionally rendered according to the authenticate
 
 ---
 
-# 5. Application Structure & Running Instructions
+# Application Structure & Running Instructions
 
-## 5.1 Project Structure
+## Project Structure
 
 ```text
 project/
