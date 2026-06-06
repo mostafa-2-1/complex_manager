@@ -1,0 +1,135 @@
+<!-- dashboard.component.html -->
+
+<div class="container-fluid">
+
+  <!-- ── Welcome Header ─────────────────────────────────── -->
+  <div class="welcome-header">
+    <!-- greeting is a standard getter, so no () needed -->
+    <!-- currentAdmin() is a signal/method, so we use () -->
+    <h2>{{ greeting }}, {{ authService.currentAdmin()?.first_name }}! 👋</h2>
+    <p>Here's an overview of your residential management system.</p>
+  </div>
+
+  <!-- ── Stat Cards ─────────────────────────────────────── -->
+  <div class="row g-4 mb-4">
+
+    <!-- 1. Modern @if / @else replaces *ngIf and [hidden] -->
+    @if (loading()) {
+      <div class="col-12">
+        <div class="loading-container d-flex justify-content-center align-items-center p-5">
+          <div class="spinner-border text-primary me-3" role="status"></div>
+          <span>Loading stats...</span>
+        </div>
+      </div>
+    } @else {
+      
+      <!-- 2. Modern @for replaces *ngFor. 'track' is mandatory and improves performance -->
+      @for (stat of stats(); track stat.label) {
+        <div class="col-sm-6 col-xl-4">
+          <a [routerLink]="stat.route" class="text-decoration-none">
+            <div class="card stat-card h-100">
+              <div class="card-body d-flex align-items-center gap-3 p-4">
+                
+                <!-- 3. String interpolation in classes replaces [ngClass] -->
+                <div class="stat-icon bg-{{ stat.color }} bg-opacity-10">
+                  <span>{{ stat.icon }}</span>
+                </div>
+
+                <div>
+                  <div class="stat-value text-{{ stat.color }}">
+                    {{ stat.value | number }}
+                  </div>
+                  <div class="stat-label">
+                    {{ stat.label }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="card-footer">
+                <small class="text-{{ stat.color }}">
+                  View all {{ stat.label.toLowerCase() }} →
+                </small>
+              </div>
+            </div>
+          </a>
+        </div>
+      } @empty {
+        <!-- 4. @empty block handles cases where the array is empty (e.g., 0 stats) -->
+        <div class="col-12 text-center text-muted p-5">
+          No statistics available to display.
+        </div>
+      }
+    }
+
+  </div>
+
+  <!-- ── Quick Actions ──────────────────────────────────── -->
+  <!-- 5. Invoke the computed signal with () -->
+  @if (visibleQuickActions().length > 0) {
+    <div class="card quick-actions">
+      <div class="card-header">⚡ Quick Actions</div>
+
+      <div class="card-body p-4">
+        <div class="d-flex flex-wrap gap-3">
+          @for (action of visibleQuickActions(); track action.route) {
+            <a
+              [routerLink]="action.route"
+              class="btn {{ action.style }}"
+            >
+              <span>{{ action.icon }}</span>
+              {{ action.label }}
+            </a>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ── Role Info Card ─────────────────────────────────── -->
+  <div class="card info-card mt-4">
+    <div class="card-header">🔐 Your Access Level</div>
+
+    <div class="card-body p-4">
+      <div class="row g-3">
+
+        @if (authService.isSuperAdmin()) {
+          <div class="col-md-4">
+            <div class="info-item">
+              <span class="badge bg-danger mt-1">Super Admin</span>
+              <div class="info-text">
+                <div class="info-title">Full System Access</div>
+                <div class="info-desc">Manage all admins, complexes, and buildings.</div>
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (authService.isComplexAdmin()) {
+          <div class="col-md-4">
+            <div class="info-item">
+              <span class="badge bg-warning text-dark mt-1">Complex Admin</span>
+              <div class="info-text">
+                <div class="info-title">Complex Management</div>
+                <div class="info-desc">Create and manage buildings in your complex.</div>
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (authService.isBuildingAdmin()) {
+          <div class="col-md-4">
+            <div class="info-item">
+              <span class="badge bg-info text-dark mt-1">Building Admin</span>
+              <div class="info-text">
+                <div class="info-title">Building Management</div>
+                <div class="info-desc">View and update your assigned building.</div>
+              </div>
+            </div>
+          </div>
+        }
+
+      </div>
+    </div>
+  </div>
+
+</div>

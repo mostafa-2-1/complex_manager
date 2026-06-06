@@ -1,0 +1,248 @@
+<div class="container" style="max-width: 760px;">
+
+  <div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+      <a routerLink="/buildings" class="btn btn-outline-secondary btn-sm">← Back</a>
+      <h2 class="mb-0">🏗️ Building Detail</h2>
+    </div>
+    
+    @if (!loading() && building()) {
+      <div class="d-flex gap-2">
+        @if (canEdit()) {
+          <button class="btn btn-outline-primary btn-sm" (click)="toggleEditMode()">
+            {{ editMode() ? 'Cancel Edit' : '✏️ Edit' }}
+          </button>
+        }
+        @if (canDelete()) {
+          <button class="btn btn-outline-danger btn-sm" (click)="onDelete()">
+            🗑️ Delete
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert alert-success">✅ {{ successMessage() }}</div>
+  }
+  @if (errorMessage()) {
+    <div class="alert alert-danger">❌ {{ errorMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner-border text-primary"></div>
+      <span>Loading building...</span>
+    </div>
+  } @else if (!building()) {
+    <div class="empty-state">
+      <span class="empty-icon">🔍</span>
+      <span class="fw-semibold">Building not found</span>
+      <a routerLink="/buildings" class="btn btn-primary btn-sm">Back to Buildings</a>
+    </div>
+  } @else {
+    
+    @let target = building()!;
+
+    @if (!editMode()) {
+      
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <div class="fw-bold fs-5">{{ target.name }}</div>
+            <small class="text-muted">
+              Part of
+              <a [routerLink]="['/complexes', target.complex_id]" class="text-decoration-none">
+                {{ target.complex_name }}
+              </a>
+            </small>
+          </div>
+          <div class="d-flex gap-1">
+            @if (target.floors) {
+              <span class="badge bg-light text-dark border">{{ target.floors }} floors</span>
+            }
+            @if (target.units) {
+              <span class="badge bg-light text-dark border">{{ target.units }} units</span>
+            }
+          </div>
+        </div>
+        
+        <div class="card-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="section-label">Building Details</div>
+              <table class="table table-sm table-borderless mb-0">
+                <tbody>
+                  <tr>
+                    <td class="text-muted" style="width:40%">Name</td>
+                    <td class="fw-semibold">{{ target.name }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-muted">Address</td>
+                    <td class="fw-semibold">{{ target.address }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-muted">Complex</td>
+                    <td>
+                      <a [routerLink]="['/complexes', target.complex_id]" class="fw-semibold text-decoration-none">
+                        {{ target.complex_name }}
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="col-md-6">
+              <div class="section-label">Capacity</div>
+              <table class="table table-sm table-borderless mb-0">
+                <tbody>
+                  <tr>
+                    <td class="text-muted" style="width:40%">Floors</td>
+                    <td class="fw-semibold">{{ target.floors ?? '—' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-muted">Units</td>
+                    <td class="fw-semibold">{{ target.units ?? '—' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-muted">Created</td>
+                    <td class="fw-semibold">{{ target.created_at | date:'mediumDate' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      @if (target.admin) {
+        <div class="card mb-4">
+          <div class="card-header">
+            👤 Building Administrator
+          </div>
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center gap-3">
+              <div class="avatar avatar-lg bg-info text-dark">
+                {{ target.admin.first_name[0] }}{{ target.admin.last_name[0] }}
+              </div>
+              <div>
+                <div class="fw-bold">
+                  {{ target.admin.civility }} {{ target.admin.first_name }} {{ target.admin.last_name }}
+                </div>
+                <div class="text-muted small">{{ target.admin.email }}</div>
+                @if (target.admin.phone) {
+                  <div class="text-muted small">{{ target.admin.phone }}</div>
+                }
+                <span class="badge mt-1" [ngClass]="target.admin.status === 'active' ? 'bg-success' : 'bg-secondary'">
+                  {{ target.admin.status | titlecase }}
+                </span>
+              </div>
+              <div class="ms-auto">
+                <a [routerLink]="['/admins', target.admin.id]" class="btn btn-sm btn-outline-secondary">
+                  View Profile
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="card border-info mb-4 bg-light-subtle">
+          <div class="card-body p-4 text-center">
+            <span class="fs-4">⚠️</span>
+            <div class="fw-semibold text-info-emphasis mt-1">No Building Administrator Assigned</div>
+            <p class="text-muted small mb-0">Click Edit above to select a building administrator account.</p>
+          </div>
+        </div>
+      }
+
+    } @else {
+      
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          ✏️ Edit — {{ target.name }}
+        </div>
+        <div class="card-body p-4">
+          <form [formGroup]="editForm" (ngSubmit)="onUpdate()" novalidate>
+            <div class="row g-3">
+
+              <div class="col-12">
+                <label class="form-label fw-semibold">Building Name *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="name"
+                  [class.is-invalid]="isInvalid('name')"
+                />
+                <div class="invalid-feedback">Min 2 characters required.</div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-semibold">Address *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="address"
+                  [class.is-invalid]="isInvalid('address')"
+                />
+                <div class="invalid-feedback">Address is required.</div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Floors</label>
+                <input type="number" class="form-control" formControlName="floors" [class.is-invalid]="isInvalid('floors')" />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Units</label>
+                <input type="number" class="form-control" formControlName="units" [class.is-invalid]="isInvalid('units')" />
+              </div>
+
+              <div class="col-12">
+  <label class="form-label fw-semibold">Assign Building Administrator *</label>
+  @if (loadingAdmins()) {
+    <div class="text-muted small py-1">
+      <span class="spinner-border spinner-border-sm me-1"></span> Loading administrative accounts...
+    </div>
+  } @else {
+    <select 
+      class="form-select" 
+      formControlName="admin_id"
+      [class.is-invalid]="isInvalid('admin_id')"
+    >
+      <option value="" disabled>-- Select a Building Admin --</option>
+      @for (admin of buildingAdmins(); track admin.id) {
+        <option [ngValue]="admin.id">
+          {{ admin.civility }} {{ admin.first_name }} {{ admin.last_name }} ({{ admin.email }})
+        </option>
+      }
+    </select>
+    <div class="invalid-feedback">Please assign an administrator to manage this building.</div>
+  }
+</div>
+
+            </div>
+
+            <div class="d-flex gap-2 mt-4 pt-3 border-top">
+              <button type="submit" class="btn btn-primary" [disabled]="updateLoading() || loadingAdmins()">
+                @if (updateLoading()) {
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                }
+                {{ updateLoading() ? 'Saving Changes...' : '💾 Save Changes' }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                (click)="toggleEditMode()"
+                [disabled]="updateLoading()"
+              >
+                Cancel
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    }
+  }
+</div>

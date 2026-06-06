@@ -1,0 +1,203 @@
+<div class="container-fluid">
+
+  <div class="page-header">
+    <h2>👥 Administrators</h2>
+
+    @if (authService.isSuperAdmin()) {
+      <a routerLink="/admins/new" class="btn btn-primary">
+        + Add Admin
+      </a>
+    }
+  </div>
+
+  <div class="filter-bar">
+    <div class="row g-2 align-items-end">
+
+      <div class="col-md-5">
+        <label class="form-label">Search</label>
+        <input
+          type="text"
+          class="form-control"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="onSearch($event)"
+          placeholder="Name, email, phone..."
+        />
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label">Role</label>
+        <select 
+          class="form-select" 
+          [ngModel]="roleFilter()" 
+          (ngModelChange)="roleFilter.set($event); onFilterChange()"
+        >
+          <option value="">All Roles</option>
+          @for (r of roleOptions; track r.value) {
+            <option [value]="r.value">{{ r.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label">Status</label>
+        <select 
+          class="form-select" 
+          [ngModel]="statusFilter()" 
+          (ngModelChange)="statusFilter.set($event); onFilterChange()"
+        >
+          <option value="">All</option>
+          @for (s of statusOptions; track s.value) {
+            <option [value]="s.value">{{ s.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        @if (hasActiveFilters()) {
+          <button class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+            Clear Filters
+          </button>
+        }
+      </div>
+
+      <div class="col-md-1">
+        @if (pagination()) {
+          {{ pagination()!.total }} total
+        }
+      </div>
+
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  <div class="mb-2 col-md-2">
+    <label class="form-label">Items per page</label>
+    <select 
+      class="form-select" 
+      [ngModel]="perPage()" 
+      (ngModelChange)="perPage.set($event); onPerPageChange()"
+    >
+      @for (size of [5,10,25,50,100]; track size) {
+        <option [ngValue]="size">{{ size }}</option>
+      }
+    </select>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner-border text-primary"></div>
+      <span>Loading administrators...</span>
+    </div>
+  }
+
+  @else {
+    <div class="card data-table-card">
+
+      <div class="table-responsive">
+        <table class="table mb-0">
+
+          <thead>
+            <tr>
+              <th>Admin</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Created</th>
+              @if (authService.isSuperAdmin()) {
+                <th>Actions</th>
+              }
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @for (admin of admins(); track admin.id) {
+              <tr>
+
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+
+                    <div class="avatar avatar-sm"
+                         [ngClass]="getAvatarClass(admin.role)">
+                      {{ admin.first_name[0] ?? '' }}{{ admin.last_name[0] ?? '' }}
+                    </div>
+
+                    <a [routerLink]="['/admins', admin.id]" class="entity-link">
+                      {{ admin.civility }} {{ admin.first_name }} {{ admin.last_name }}
+                    </a>
+
+                  </div>
+                </td>
+
+                <td class="text-muted small">{{ admin.email }}</td>
+                <td class="text-muted small">{{ admin.phone || '—' }}</td>
+
+                <td>
+                  <span [ngClass]="getRoleBadgeClass(admin.role)">
+                    {{ getRoleLabel(admin.role) }}
+                  </span>
+                </td>
+
+                <td>
+                  <span class="badge"
+                        [ngClass]="admin.status === 'active' ? 'bg-success' : 'bg-secondary'">
+                    {{ admin.status | titlecase }}
+                  </span>
+                </td>
+
+                <td class="text-muted small">
+                  {{ admin.created_at | date:'mediumDate' }}
+                </td>
+
+                @if (authService.isSuperAdmin()) {
+                  <td>
+                    <div class="action-buttons">
+
+                      <a [routerLink]="['/admins', admin.id]"
+                         class="btn btn-sm btn-outline-primary">
+                        View
+                      </a>
+
+                      <button class="btn btn-sm btn-outline-danger"
+                              (click)="onDelete(admin)">
+                        Delete
+                      </button>
+
+                    </div>
+                  </td>
+                }
+
+              </tr>
+            } @empty {
+              <tr>
+                <td [attr.colspan]="authService.isSuperAdmin() ? 7 : 6">
+                  <div class="empty-state">
+                    <span class="empty-icon">👥</span>
+                    <span class="fw-semibold">No administrators found</span>
+                  </div>
+                </td>
+              </tr>
+            }
+
+          </tbody>
+        </table>
+      </div>
+
+      @if (pagination(); as paginationData) {
+        <div class="card-footer">
+          <app-pagination
+            [pagination]="paginationData"
+            [currentPage]="currentPage()"
+            (pageChange)="onPageChange($event)">
+          </app-pagination>
+        </div>
+      }
+
+    </div>
+  }
+
+</div>

@@ -1,0 +1,175 @@
+<div class="container" style="max-width: 820px;">
+
+  <div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+      <a routerLink="/buildings" class="btn btn-outline-secondary btn-sm">← Back</a>
+      <h2 class="mb-0">🏗️ Add Building</h2>
+    </div>
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert alert-success">✅ {{ successMessage() }}</div>
+  }
+  @if (errorMessage()) {
+    <div class="alert alert-danger">❌ {{ errorMessage() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        Building Information
+      </div>
+      <div class="card-body p-4">
+        <div class="row g-3">
+
+          <div class="col-12">
+            <label class="form-label fw-semibold">
+              Residential Complex <span class="text-danger">*</span>
+            </label>
+
+            @if (loadingComplexes()) {
+              <div class="text-muted">
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Loading complexes...
+              </div>
+            } @else {
+              <select
+                class="form-select"
+                formControlName="complex_id"
+                [class.is-invalid]="isInvalid('complex_id')"
+              >
+                <option [ngValue]="null" disabled>
+                  -- Select a complex --
+                </option>
+                @for (c of complexes(); track c.id) {
+                  <option [ngValue]="c.id">
+                    {{ c.name }} — {{ c.city }}
+                  </option>
+                }
+              </select>
+            }
+            <div class="invalid-feedback">Please select a complex.</div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-semibold">
+              Building Name <span class="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="name"
+              placeholder="Tower A"
+              [class.is-invalid]="isInvalid('name')"
+            />
+            <div class="invalid-feedback">Min 2 characters required.</div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-semibold">
+              Address <span class="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="address"
+              placeholder="123 Main Street, Block A"
+              [class.is-invalid]="isInvalid('address')"
+            />
+            <div class="invalid-feedback">Address is required.</div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Number of Floors</label>
+            <input
+              type="number"
+              class="form-control"
+              formControlName="floors"
+              placeholder="e.g. 10"
+              [class.is-invalid]="isInvalid('floors')" 
+            />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Number of Units</label>
+            <input
+              type="number"
+              class="form-control"
+              formControlName="units"
+              placeholder="e.g. 40"
+              [class.is-invalid]="isInvalid('units')"
+            />
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header bg-success text-white">
+        Assign Building Admin
+      </div>
+      <div class="card-body p-4">
+        <div class="row g-3">
+
+          <div class="col-12">
+            <label class="form-label fw-semibold">
+              Building Admin <span class="text-danger">*</span>
+            </label>
+
+            @if (loadingAdmins()) {
+              <div class="text-muted">
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Loading admins...
+              </div>
+            } @else {
+              <select
+                class="form-select"
+                formControlName="admin_id"
+                [class.is-invalid]="isInvalid('admin_id')"
+              >
+                <option [ngValue]="null" disabled>
+                  -- Select a Building Admin --
+                </option>
+                @for (admin of buildingAdmins(); track admin.id) {
+                  <option [ngValue]="admin.id">
+                    {{ admin.civility }} {{ admin.first_name }} {{ admin.last_name }}
+                    ({{ admin.email }})
+                  </option>
+                }
+              </select>
+            }
+
+            <div class="invalid-feedback">Please select a building admin.</div>
+
+            @if (!loadingAdmins() && buildingAdmins().length === 0) {
+              <div class="alert alert-warning mt-2 mb-0">
+                ⚠️ No building admins found.
+                <a routerLink="/admins/new" class="alert-link">Create one first</a>.
+              </div>
+            }
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="loading() || loadingComplexes() || loadingAdmins() || buildingAdmins().length === 0"
+      >
+        @if (loading()) {
+          <span class="spinner-border spinner-border-sm me-2"></span>
+        }
+        {{ loading() ? 'Creating...' : 'Create Building' }}
+      </button>
+      <a routerLink="/buildings" class="btn btn-outline-secondary">
+        Cancel
+      </a>
+    </div>
+
+  </form>
+</div>

@@ -1,0 +1,184 @@
+<div class="container-fluid">
+
+  <div class="page-header">
+    <h2>🏗️ Buildings</h2>
+    @if (authService.isSuperAdmin() || authService.isComplexAdmin()) {
+      <a routerLink="/buildings/new" class="btn btn-primary">
+        + Add Building
+      </a>
+    }
+  </div>
+
+  <div class="filter-bar">
+    <div class="row g-2 align-items-end">
+
+      <div class="col-md-5">
+        <label class="form-label">Search</label>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Building name, address..."
+          [ngModel]="searchTerm()"
+          (ngModelChange)="onSearch($event)"
+        />
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Filter by Complex</label>
+        <select
+          class="form-select"
+          [ngModel]="complexFilter()"
+          (ngModelChange)="complexFilter.set($event); onFilterChange()"
+        >
+          <option value="">All Complexes</option>
+          @for (c of complexes(); track c.id) {
+            <option [value]="c.id">
+              {{ c.name }} — {{ c.city }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        @if (hasActiveFilters()) {
+          <button class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+            Clear Filters
+          </button>
+        }
+      </div>
+
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  <div class="mb-2 col-md-2">
+    <label class="form-label">Items per page</label>
+    <select
+      class="form-select"
+      [ngModel]="perPage()"
+      (ngModelChange)="perPage.set($event); onPerPageChange()"
+    >
+      <option [ngValue]="5">5</option>
+      <option [ngValue]="10">10</option>
+      <option [ngValue]="25">25</option>
+      <option [ngValue]="50">50</option>
+      <option [ngValue]="100">100</option>
+    </select>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner-border text-primary"></div>
+      <span>Loading buildings...</span>
+    </div>
+  } @else {
+    <div class="card data-table-card">
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead>
+            <tr>
+              <th>Building</th>
+              <th>Complex</th>
+              <th>Address</th>
+              <th>Floors</th>
+              <th>Units</th>
+              <th>Admin</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            @for (building of buildings(); track building.id) {
+              <tr>
+                <td>
+                  <a [routerLink]="['/buildings', building.id]" class="entity-link">
+                    {{ building.name }}
+                  </a>
+                </td>
+
+                <td>
+                  <a [routerLink]="['/complexes', building.complex_id]" class="text-decoration-none small text-muted">
+                    {{ building.complex_name || '—' }}
+                  </a>
+                </td>
+
+                <td class="text-muted small">{{ building.address }}</td>
+
+                <td>
+                  @if (building.floors) {
+                    <span class="badge-count">{{ building.floors }}</span>
+                  } @else {
+                    <span class="text-muted">—</span>
+                  }
+                </td>
+
+                <td>
+                  @if (building.units) {
+                    <span class="badge-count">{{ building.units }}</span>
+                  } @else {
+                    <span class="text-muted">—</span>
+                  }
+                </td>
+
+                <td>
+                  @if (building.admin) {
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="avatar avatar-sm bg-info text-dark">
+                        {{ building.admin.first_name[0] }}{{ building.admin.last_name[0] }}
+                      </div>
+                      <span class="small">
+                        {{ building.admin.first_name }} {{ building.admin.last_name }}
+                      </span>
+                    </div>
+                  } @else {
+                    <span class="text-muted small">—</span>
+                  }
+                </td>
+
+                <td>
+                  <div class="action-buttons">
+                    <a [routerLink]="['/buildings', building.id]" class="btn btn-sm btn-outline-primary">
+                      View
+                    </a>
+                    @if (authService.isSuperAdmin()) {
+                      <button class="btn btn-sm btn-outline-danger" (click)="onDelete(building)">
+                        Delete
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7">
+                  <div class="empty-state">
+                    <span class="empty-icon">🏗️</span>
+                    <span class="fw-semibold">No buildings found</span>
+                    @if (hasActiveFilters()) {
+                      <span class="text-muted small">Try adjusting your filters</span>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+
+          </tbody>
+        </table>
+      </div>
+
+      @if (pagination(); as paginationData) {
+        <div class="card-footer">
+          <app-pagination
+            [pagination]="paginationData"
+            [currentPage]="currentPage()"
+            (pageChange)="onPageChange($event)"
+          ></app-pagination>
+        </div>
+      }
+
+    </div>
+  }
+</div>

@@ -1,0 +1,182 @@
+<div class="container" style="max-width: 820px;">
+
+  <div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+      <a routerLink="/complexes" class="btn btn-outline-secondary btn-sm">← Back</a>
+      <h2 class="mb-0">🏘️ Add Residential Complex</h2>
+    </div>
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert alert-success">✅ {{ successMessage() }}</div>
+  }
+  @if (errorMessage()) {
+    <div class="alert alert-danger">❌ {{ errorMessage() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        Complex Information
+      </div>
+      <div class="card-body p-4">
+        <div class="row g-3">
+
+          <div class="col-12">
+            <label class="form-label fw-semibold">
+              Complex Name <span class="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="name"
+              placeholder="Sunrise Residence"
+              [class.is-invalid]="isInvalid('name')"
+            />
+            <div class="invalid-feedback">Min 2 characters required.</div>
+          </div>
+
+          <div class="col-md-8">
+            <label class="form-label fw-semibold">
+              Address <span class="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="address"
+              placeholder="123 Main Street"
+              [class.is-invalid]="isInvalid('address')"
+            />
+            <div class="invalid-feedback">Address is required.</div>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Postal Code</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="postal_code"
+              placeholder="75001"
+            />
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-semibold">
+              City <span class="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="city"
+              placeholder="Paris"
+              [class.is-invalid]="isInvalid('city')"
+            />
+            <div class="invalid-feedback">City is required.</div>
+          </div>
+
+          <div class="col-12">
+            <hr class="my-1" />
+            <div class="section-label">Campaign (Optional)</div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-semibold">Campaign Name</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="campaign_name"
+              placeholder="Summer Promo 2024"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Start Date</label>
+            <input
+              type="date"
+              class="form-control"
+              formControlName="campaign_start_date"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">End Date</label>
+            <input
+              type="date"
+              class="form-control"
+              formControlName="campaign_end_date"
+            />
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header bg-success text-white">
+        Assign Complex Admin
+      </div>
+      <div class="card-body p-4">
+        <div class="row g-3">
+
+          <div class="col-12">
+            <label class="form-label fw-semibold">
+              Complex Admin <span class="text-danger">*</span>
+            </label>
+
+            @if (loadingAdmins()) {
+              <div class="text-muted">
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Loading admins...
+              </div>
+            } @else {
+              <select
+                class="form-select"
+                formControlName="admin_id"
+                [class.is-invalid]="isInvalid('admin_id')"
+              >
+                <option [ngValue]="null" disabled>
+                  -- Select a Complex Admin --
+                </option>
+                
+                @for (admin of complexAdmins(); track admin.id) {
+                  <option [ngValue]="admin.id">
+                    {{ admin.civility }} {{ admin.first_name }} {{ admin.last_name }}
+                    ({{ admin.email }})
+                  </option>
+                }
+              </select>
+            }
+
+            <div class="invalid-feedback">Please select a complex admin.</div>
+
+            @if (!loadingAdmins() && complexAdmins().length === 0) {
+              <div class="alert alert-warning mt-2 mb-0">
+                ⚠️ No complex admins found.
+                <a routerLink="/admins/new" class="alert-link">Create one first</a>.
+              </div>
+            }
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="loading() || loadingAdmins() || complexAdmins().length === 0"
+      >
+        @if (loading()) {
+          <span class="spinner-border spinner-border-sm me-2"></span>
+        }
+        {{ loading() ? 'Creating...' : 'Create Complex' }}
+      </button>
+      <a routerLink="/complexes" class="btn btn-outline-secondary">
+        Cancel
+      </a>
+    </div>
+
+  </form>
+</div>

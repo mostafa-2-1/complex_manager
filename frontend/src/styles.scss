@@ -1,0 +1,602 @@
+/* You can add global styles to this file, and also import other style files */
+
+// ── Bootstrap (must be first) ─────────────────────────────────────────────────
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+// ── CSS Variables ─────────────────────────────────────────────────────────────
+:root {
+  --navbar-height:   56px;
+  --sidebar-bg:      #f8f9fa;
+  --border-radius:   10px;
+  --transition:      0.2s ease;
+  --shadow-sm:       0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md:       0 6px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg:       0 8px 24px rgba(0, 0, 0, 0.12);
+  --color-bg:        #f0f2f5;
+  --color-surface:   #ffffff;
+  --color-border:    #e8eaed;
+  --color-text:      #1a1a2e;
+  --color-muted:     #6b7280;
+}
+
+// ── Base Reset ────────────────────────────────────────────────────────────────
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+// ── Page Layout ───────────────────────────────────────────────────────────────
+.page-content {
+  min-height: 100vh;
+  padding: 0;
+
+  &.with-navbar {
+    min-height: calc(100vh - var(--navbar-height));
+    padding: 1.5rem 2rem;
+
+    @media (max-width: 768px) {
+      padding: 1rem;
+    }
+  }
+}
+
+// ── Card Improvements ─────────────────────────────────────────────────────────
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  background: var(--color-surface);
+  transition: box-shadow var(--transition), transform var(--transition);
+
+  .card-header {
+    border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+    font-weight: 600;
+    padding: 1rem 1.25rem;
+    background-color: #fafbfc;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.95rem;
+  }
+
+  .card-footer {
+    background-color: #fafbfc;
+    border-top: 1px solid var(--color-border);
+    padding: 0.75rem 1.25rem;
+  }
+}
+
+// ── Navbar ────────────────────────────────────────────────────────────────────
+.navbar {
+  min-height: var(--navbar-height);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+  .navbar-collapse.show {
+    padding-bottom: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 0.5rem;
+  }
+
+  .nav-link {
+    border-radius: 6px;
+    transition: background-color var(--transition);
+    font-size: 0.9rem;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    &.active {
+      background-color: rgba(255, 255, 255, 0.15);
+      font-weight: 600;
+    }
+  }
+
+  @media (max-width: 991.98px) {
+    .navbar-nav {
+      width: 100%;
+      padding: 0.25rem 0;
+
+      .nav-item {
+        width: 100%;
+
+        .nav-link {
+          width: 100%;
+          padding: 0.6rem 0.75rem;
+        }
+      }
+    }
+
+    .d-flex.flex-column.flex-lg-row {
+      width: 100%;
+      padding-top: 0.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+      .d-flex.flex-column {
+        width: 100%;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between;
+        padding: 0.4rem 0.75rem;
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 6px;
+      }
+
+      button.btn {
+        width: 100%;
+        margin-top: 0.25rem;
+      }
+    }
+  }
+}
+
+// ── Page Header (unified) ─────────────────────────────────────────────────────
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+
+  h2 {
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+
+  @media (max-width: 576px) {
+    flex-direction: column;
+    align-items: flex-start;
+
+    h2 {
+      font-size: 1.3rem;
+    }
+  }
+}
+
+// ── Filter Bar (unified search/filter strip) ──────────────────────────────────
+.filter-bar {
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+
+  .filter-bar-count {
+    font-size: 0.8rem;
+    color: var(--color-muted);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+}
+
+// ── Stat Cards (Dashboard) ────────────────────────────────────────────────────
+.stat-card {
+  cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition);
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg) !important;
+  }
+
+  .stat-icon {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+  }
+
+  .stat-value {
+    font-size: 1.85rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .stat-label {
+    font-size: 0.82rem;
+    margin-top: 0.25rem;
+    color: var(--color-muted);
+  }
+}
+
+// ── Entity Cards (Complexes, Admins card grid) ────────────────────────────────
+.entity-card {
+  transition: transform var(--transition), box-shadow var(--transition);
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, #fafbfc 0%, #f5f6fa 100%);
+  }
+
+  .entity-meta {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+
+    .entity-meta-icon {
+      flex-shrink: 0;
+      width: 18px;
+      text-align: center;
+    }
+  }
+
+  .entity-admin-block {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--color-border);
+  }
+}
+
+// ── Data Table (Buildings, Admins table) ──────────────────────────────────────
+.data-table-card {
+  overflow: hidden;
+
+  .table {
+    margin-bottom: 0;
+    font-size: 0.875rem;
+
+    thead th {
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      vertical-align: middle;
+      background-color: #1a1a2e;
+      color: #ffffff;
+      border: none;
+      padding: 0.75rem 1rem;
+    }
+
+    tbody td {
+      vertical-align: middle;
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    tbody tr {
+      transition: background-color var(--transition);
+
+      &:hover {
+        background-color: #f8f9ff;
+      }
+
+      &:last-child td {
+        border-bottom: none;
+      }
+    }
+  }
+
+  .entity-link {
+    color: var(--color-text);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color var(--transition);
+
+    &:hover {
+      color: #0d6efd;
+    }
+  }
+}
+
+// ── Quick Actions (Dashboard) ─────────────────────────────────────────────────
+.quick-actions {
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    border-radius: 8px;
+    font-weight: 500;
+  }
+}
+
+// ── Role / Info Cards ─────────────────────────────────────────────────────────
+.info-card {
+  .info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+
+    .info-text {
+      .info-title {
+        font-weight: 600;
+        font-size: 0.85rem;
+      }
+      .info-desc {
+        font-size: 0.78rem;
+        color: var(--color-muted);
+        margin-top: 0.1rem;
+      }
+    }
+  }
+}
+
+// ── Tables (general) ─────────────────────────────────────────────────────────
+.table {
+  font-size: 0.9rem;
+
+  thead th {
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  tbody td {
+    vertical-align: middle;
+  }
+}
+
+// ── Buttons ───────────────────────────────────────────────────────────────────
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all var(--transition);
+  letter-spacing: 0.01em;
+
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+  }
+
+  &.btn-sm {
+    border-radius: 6px;
+    font-size: 0.8rem;
+    padding: 0.3rem 0.7rem;
+  }
+}
+
+// ── Action Buttons (table row actions) ────────────────────────────────────────
+.action-buttons {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: nowrap;
+
+  .btn {
+    white-space: nowrap;
+  }
+}
+
+// ── Forms ─────────────────────────────────────────────────────────────────────
+.form-control,
+.form-select {
+  border-radius: 8px;
+  border-color: var(--color-border);
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
+
+  &:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.12);
+  }
+
+  &.is-invalid {
+    border-color: #dc3545;
+  }
+}
+
+.form-label {
+  font-size: 0.8rem;
+  margin-bottom: 0.3rem;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+// ── Badges ────────────────────────────────────────────────────────────────────
+.badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.35em 0.65em;
+  border-radius: 6px;
+  letter-spacing: 0.3px;
+}
+
+.badge-count {
+  background-color: #f0f2f5;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  font-weight: 600;
+  font-size: 0.78rem;
+  padding: 0.25em 0.55em;
+  border-radius: 6px;
+}
+
+// ── Pagination ────────────────────────────────────────────────────────────────
+.pagination {
+  .page-link {
+    border-radius: 8px !important;
+    margin: 0 2px;
+    border: 1px solid var(--color-border);
+    color: #495057;
+    font-size: 0.85rem;
+    padding: 0.35rem 0.7rem;
+    transition: all var(--transition);
+
+    &:hover {
+      background-color: #e9ecef;
+      border-color: #dee2e6;
+      color: #212529;
+    }
+  }
+
+  .page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+  }
+
+  .page-item.disabled .page-link {
+    color: #adb5bd;
+    pointer-events: none;
+  }
+}
+
+// ── Alerts ────────────────────────────────────────────────────────────────────
+.alert {
+  border-radius: var(--border-radius);
+  border: none;
+  font-size: 0.9rem;
+  padding: 0.85rem 1.25rem;
+
+  &.alert-success {
+    background-color: #d1e7dd;
+    color: #0a3622;
+  }
+
+  &.alert-danger {
+    background-color: #f8d7da;
+    color: #58151c;
+  }
+}
+
+// ── Avatar Circle ─────────────────────────────────────────────────────────────
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+
+  &.avatar-sm {
+    width: 28px;
+    height: 28px;
+    font-size: 0.68rem;
+  }
+
+  &.avatar-lg {
+    width: 56px;
+    height: 56px;
+    font-size: 1.3rem;
+  }
+}
+
+// ── Spinner / Loading ─────────────────────────────────────────────────────────
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 0;
+  color: var(--color-muted);
+  gap: 1rem;
+}
+
+// ── Empty State ───────────────────────────────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 0;
+  color: var(--color-muted);
+  text-align: center;
+  gap: 0.5rem;
+
+  .empty-icon {
+    font-size: 3rem;
+    opacity: 0.35;
+  }
+}
+
+// ── Section Label ─────────────────────────────────────────────────────────────
+.section-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-muted);
+  margin-bottom: 0.5rem;
+}
+
+// ── Welcome Header (Dashboard) ────────────────────────────────────────────────
+.welcome-header {
+  margin-bottom: 1.5rem;
+
+  h2 {
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    color: var(--color-muted);
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.text-truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .page-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .stat-card .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .stat-card .stat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 1.3rem;
+  }
+
+  .table-responsive {
+    font-size: 0.82rem;
+  }
+
+  .filter-bar {
+    padding: 0.85rem 1rem;
+  }
+}

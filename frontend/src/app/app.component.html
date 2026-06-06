@@ -1,0 +1,11 @@
+
+<!-- ── Navbar (only when logged in) ───────────────────────── -->
+<app-navbar *ngIf="showNavbar()"></app-navbar>
+
+<!-- ── Page Content ───────────────────────────────────────── -->
+<main
+  [class.with-navbar]="showNavbar()"
+  class="page-content"
+>
+  <router-outlet></router-outlet>
+</main>

@@ -1,0 +1,258 @@
+<div class="container" style="max-width: 900px;">
+
+  <div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+      <a routerLink="/complexes" class="btn btn-outline-secondary btn-sm">← Back</a>
+      <h2 class="mb-0">🏘️ Complex Detail</h2>
+    </div>
+
+    @if (!loading() && complex() && authService.isSuperAdmin()) {
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary btn-sm" (click)="toggleEditMode()">
+          {{ editMode() ? 'Cancel Edit' : '✏️ Edit' }}
+        </button>
+        <button class="btn btn-outline-danger btn-sm" (click)="onDelete()">
+          🗑️ Delete
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert alert-success">✅ {{ successMessage() }}</div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger">❌ {{ errorMessage() }}</div>
+  }
+
+  @if (loading()) {
+
+    <div class="loading-container">
+      <div class="spinner-border text-primary"></div>
+      <span>Loading complex...</span>
+    </div>
+
+  } @else if (!complex()) {
+
+    <div class="empty-state">
+      <span class="empty-icon">🔍</span>
+      <span class="fw-semibold">Complex not found</span>
+      <a routerLink="/complexes" class="btn btn-primary btn-sm">Back to Complexes</a>
+    </div>
+
+  } @else {
+
+    @let c = complex();
+
+    @if (!editMode()) {
+
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <div class="fw-bold fs-5">{{ c?.name }}</div>
+            <small class="text-muted">📍 {{ c?.address }}, {{ c?.city }}</small>
+          </div>
+
+          @if (c?.postal_code) {
+            <span class="badge bg-light text-dark border">
+              {{ c?.postal_code }}
+            </span>
+          }
+        </div>
+
+        <div class="card-body p-4">
+          <div class="row g-4">
+
+            <div class="col-md-6">
+              <div class="section-label">Location</div>
+
+              <table class="table table-sm table-borderless mb-0">
+                <tr>
+                  <td class="text-muted">Address</td>
+                  <td class="fw-semibold">{{ c?.address }}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted">City</td>
+                  <td class="fw-semibold">{{ c?.city }}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted">Postal Code</td>
+                  <td class="fw-semibold">{{ c?.postal_code || '—' }}</td>
+                </tr>
+              </table>
+            </div>
+
+            <div class="col-md-6">
+              <div class="section-label">Campaign</div>
+
+              <table class="table table-sm table-borderless mb-0">
+                <tr>
+                  <td class="text-muted">Name</td>
+                  <td class="fw-semibold">{{ c?.campaign_name || '—' }}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted">Start</td>
+                  <td class="fw-semibold">
+                    {{ c?.campaign_start_date ? (c?.campaign_start_date | date:'mediumDate') : '—' }}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-muted">End</td>
+                  <td class="fw-semibold">
+                    {{ c?.campaign_end_date ? (c?.campaign_end_date | date:'mediumDate') : '—' }}
+                  </td>
+                </tr>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      @if (c?.admin) {
+        <div class="card mb-4">
+          <div class="card-header">
+            👤 Complex Administrator
+          </div>
+          <div class="card-body p-4 d-flex align-items-center gap-3">
+            <div class="avatar avatar-lg bg-warning text-dark">
+              {{ c?.admin?.first_name?.[0] ?? '' }}{{ c?.admin?.last_name?.[0] ?? '' }}
+            </div>
+            <div>
+              <div class="fw-bold">
+                {{ c?.admin?.civility }} {{ c?.admin?.first_name }} {{ c?.admin?.last_name }}
+              </div>
+              <div class="text-muted small">{{ c?.admin?.email }}</div>
+              <div class="text-muted small">{{ c?.admin?.phone }}</div>
+            </div>
+            <div class="ms-auto">
+              <a [routerLink]="['/admins', c?.admin?.id]" class="btn btn-sm btn-outline-secondary">
+                View Profile
+              </a>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="card border-warning mb-4 bg-light-subtle">
+          <div class="card-body p-4 text-center">
+            <span class="fs-4">⚠️</span>
+            <div class="fw-semibold text-warning-emphasis mt-1">No Complex Administrator Assigned</div>
+            <p class="text-muted small mb-0">Click on Edit above to assign a new administrator to this complex.</p>
+          </div>
+        </div>
+      }
+
+    } @else {
+
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          ✏️ Edit — {{ c?.name }}
+        </div>
+
+        <div class="card-body p-4">
+          <form [formGroup]="editForm" (ngSubmit)="onUpdate()">
+            <div class="row g-3">
+
+              <div class="col-12">
+                <label class="form-label fw-semibold">Name *</label>
+                <input class="form-control" formControlName="name" [class.is-invalid]="isInvalid('name')">
+                <div class="invalid-feedback">Name is required (Min 2 chars).</div>
+              </div>
+
+              <div class="col-md-8">
+                <label class="form-label fw-semibold">Address *</label>
+                <input class="form-control" formControlName="address" [class.is-invalid]="isInvalid('address')">
+                <div class="invalid-feedback">Address is required.</div>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Postal Code</label>
+                <input class="form-control" formControlName="postal_code">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-semibold">City *</label>
+                <input class="form-control" formControlName="city" [class.is-invalid]="isInvalid('city')">
+                <div class="invalid-feedback">City is required.</div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-semibold">Assign Complex Administrator *</label>
+                @if (loadingAdmins()) {
+                  <div class="text-muted small py-1">
+                    <span class="spinner-border spinner-border-sm me-1"></span> Loading administrative accounts...
+                  </div>
+                } @else {
+                  <select 
+                    class="form-select" 
+                    formControlName="admin_id"
+                    [class.is-invalid]="isInvalid('admin_id')"
+                  >
+                    <option value="" disabled>-- Select a Complex Admin --</option>
+                    @for (admin of complexAdmins(); track admin.id) {
+                      <option [ngValue]="admin.id">
+                        {{ admin.civility }} {{ admin.first_name }} {{ admin.last_name }} ({{ admin.email }})
+                      </option>
+                    }
+                  </select>
+                  <div class="invalid-feedback">Please assign an administrator to this complex.</div>
+                }
+              </div>
+
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+              <button class="btn btn-primary" type="submit" [disabled]="updateLoading() || loadingAdmins()">
+                💾 Save
+              </button>
+              <button class="btn btn-outline-secondary" type="button" (click)="toggleEditMode()">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    }
+
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>
+          🏗️ Buildings
+          <span class="badge bg-secondary">{{ buildingCount() }}</span>
+        </span>
+
+        @if (authService.isSuperAdmin() || authService.isComplexAdmin()) {
+          <a
+            [routerLink]="['/buildings/new']"
+            [queryParams]="{ complex_id: c?.id }"
+            class="btn btn-sm btn-primary">
+            + Add Building
+          </a>
+        }
+      </div>
+
+      <div class="list-group list-group-flush">
+        @for (building of c?.buildings ?? []; track building.id) {
+          <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+            <div>
+              <div class="fw-semibold">{{ building.name }}</div>
+              <small class="text-muted">{{ building.address }}</small>
+            </div>
+
+            <a [routerLink]="['/buildings', building.id]" class="btn btn-sm btn-outline-primary">
+              View
+            </a>
+          </div>
+        } @empty {
+          <div class="list-group-item text-center text-muted py-3">
+            No buildings yet
+          </div>
+        }
+      </div>
+    </div>
+
+  }
+
+</div>

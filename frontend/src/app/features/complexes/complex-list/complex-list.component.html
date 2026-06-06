@@ -1,0 +1,180 @@
+<div class="container-fluid">
+
+  <div class="page-header">
+    <h2>🏘️ Residential Complexes</h2>
+    @if (authService.isSuperAdmin()) {
+      <a routerLink="/complexes/new" class="btn btn-primary">
+        + Add Complex
+      </a>
+    }
+  </div>
+
+  <div class="filter-bar">
+    <div class="row g-2 align-items-center">
+      <div class="col-md-8">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Search by name, city, address..."
+          [ngModel]="searchTerm()"
+          (ngModelChange)="onSearch($event)"
+        />
+      </div>
+      <div class="col-md-2">
+        @if (searchTerm()) {
+          <button class="btn btn-outline-secondary w-100" (click)="clearSearch()">
+            Clear
+          </button>
+        }
+      </div>
+      
+      @if (pagination(); as pag) {
+        <div class="col-md-2 filter-bar-count">
+          {{ pag.total }} complex{{ pag.total !== 1 ? 'es' : '' }}
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  <div class="mb-3 col-md-2">
+    <label class="form-label">Items per page</label>
+    <select
+      class="form-select"
+      [ngModel]="perPage()"
+      (ngModelChange)="perPage.set($event); onPerPageChange()"
+    >
+      <option [ngValue]="5">5</option>
+      <option [ngValue]="10">10</option>
+      <option [ngValue]="25">25</option>
+      <option [ngValue]="50">50</option>
+      <option [ngValue]="100">100</option>
+    </select>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner-border text-primary"></div>
+      <span>Loading complexes...</span>
+    </div>
+  } @else {
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+      
+      @for (complex of complexes(); track complex.id) {
+        <div class="col">
+          <div class="card entity-card h-100">
+
+            <div class="card-header d-flex justify-content-between align-items-start">
+              <div>
+                <div class="fw-bold">{{ complex.name }}</div>
+                <small class="text-muted">📍 {{ complex.city }}</small>
+              </div>
+              
+              @if (complexUIStates()[complex.id]?.label) {
+                <span
+                  [className]="complexUIStates()[complex.id].badge"
+                  style="font-size: 0.68rem; white-space: nowrap;"
+                >
+                  {{ complexUIStates()[complex.id].label }}
+                </span>
+              }
+            </div>
+
+            <div class="card-body p-3">
+              <div class="entity-meta">
+                <span class="entity-meta-icon">🏠</span>
+                <span>{{ complex.address }}</span>
+              </div>
+
+              @if (complex.postal_code) {
+                <div class="entity-meta">
+                  <span class="entity-meta-icon">📮</span>
+                  <span>{{ complex.postal_code }}</span>
+                </div>
+              }
+
+              @if (complex.campaign_name) {
+                <div class="entity-meta">
+                  <span class="entity-meta-icon">📢</span>
+                  <span class="fw-semibold">{{ complex.campaign_name }}</span>
+                </div>
+              }
+
+              @if (complex.campaign_start_date || complex.campaign_end_date) {
+                <div class="entity-meta">
+                  <span class="entity-meta-icon">📅</span>
+                  <span>
+                    {{ complex.campaign_start_date | date:'mediumDate' }}
+                    @if (complex.campaign_end_date) {
+                      <span> → {{ complex.campaign_end_date | date:'mediumDate' }}</span>
+                    }
+                  </span>
+                </div>
+              }
+
+              @if (complex.admin) {
+                <div class="entity-admin-block">
+                  <div class="section-label">Complex Admin</div>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="avatar avatar-sm bg-warning text-dark">
+                      {{ complex.admin.first_name[0] }}{{ complex.admin.last_name[0] }}
+                    </div>
+                    <span class="small fw-semibold">
+                      {{ complex.admin.first_name }} {{ complex.admin.last_name }}
+                    </span>
+                  </div>
+                </div>
+              } @else {
+                <div class="entity-admin-block border border-dashed rounded p-2 text-center bg-light">
+                  <span class="text-muted small">⚠️ No Admin Assigned</span>
+                </div>
+              }
+            </div>
+
+            <div class="card-footer d-flex justify-content-between align-items-center">
+              <a [routerLink]="['/complexes', complex.id]" class="btn btn-sm btn-outline-primary">
+                View Details
+              </a>
+              @if (authService.isSuperAdmin()) {
+                <button class="btn btn-sm btn-outline-danger" (click)="onDelete(complex)">
+                  Delete
+                </button>
+              }
+            </div>
+
+          </div>
+        </div>
+      } @empty {
+        <div class="col-12">
+          <div class="empty-state">
+            <span class="empty-icon">🏘️</span>
+            <span class="fw-semibold">No complexes found</span>
+            
+            @if (searchTerm()) {
+              <span class="text-muted small">No results for "{{ searchTerm() }}"</span>
+            }
+            
+            @if (authService.isSuperAdmin() && !searchTerm()) {
+              <a routerLink="/complexes/new" class="btn btn-primary btn-sm mt-2">
+                Create First Complex
+              </a>
+            }
+          </div>
+        </div>
+      }
+
+    </div>
+
+    @if (pagination()) {
+      <div class="mt-4">
+        <app-pagination
+          [pagination]="pagination()!"
+          (pageChange)="onPageChange($event)"
+        ></app-pagination>
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,277 @@
+<!-- frontend/src/app/features/admins/admin-detail/admin-detail.component.html -->
+
+<div class="container" style="max-width: 760px;">
+
+  <!-- ── Header ────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+      <a routerLink="/admins" class="btn btn-outline-secondary btn-sm">← Back</a>
+      <h2 class="mb-0">👤 Admin Detail</h2>
+    </div>
+
+    @if (!loading() && admin() && authService.isSuperAdmin()) {
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary btn-sm" (click)="toggleEditMode()">
+          {{ editMode() ? 'Cancel Edit' : '✏️ Edit' }}
+        </button>
+
+        @if (!isOwnProfile) {
+          <button class="btn btn-outline-danger btn-sm" (click)="onDelete()">
+            🗑️ Delete
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- ── Alerts ─────────────────────────────────────────── -->
+  @if (successMessage()) {
+    <div class="alert alert-success">✅ {{ successMessage() }}</div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger">❌ {{ errorMessage() }}</div>
+  }
+
+  <!-- ── Loading ────────────────────────────────────────── -->
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner-border text-primary"></div>
+      <span>Loading admin...</span>
+    </div>
+  }
+
+  <!-- ── Not Found ──────────────────────────────────────── -->
+  @else if (!admin()) {
+    <div class="text-center py-5">
+      <div class="empty-state">
+        <span class="empty-icon">🔍</span>
+        <span class="fw-semibold">Admin not found</span>
+        <a routerLink="/admins" class="btn btn-primary btn-sm mt-2">Back to Admins</a>
+      </div>
+    </div>
+  }
+
+  <!-- ── Content ────────────────────────────────────────── -->
+  @else {
+
+    @if (!editMode()) {
+
+      <!-- ═══ VIEW MODE ═══════════════════════════════ -->
+      <div class="card">
+
+        <div class="card-header d-flex align-items-center justify-content-between">
+
+          <div class="d-flex align-items-center gap-3">
+
+            <div class="avatar avatar-sm text-white"
+                 [ngClass]="getRoleBadgeClass(admin()!.role)">
+              {{ (admin()?.first_name ?? '')[0] }}{{ (admin()?.last_name ?? '')[0] }}
+            </div>
+
+            <div>
+              <div class="fw-bold fs-5">
+                {{ admin()?.civility }} {{ admin()?.first_name }} {{ admin()?.last_name }}
+              </div>
+
+              <div class="d-flex gap-2 align-items-center">
+                <span [ngClass]="getRoleBadgeClass(admin()!.role)">
+                  {{ getRoleLabel(admin()!.role) }}
+                </span>
+
+                <span class="badge"
+                      [ngClass]="admin()?.status === 'active' ? 'bg-success' : 'bg-secondary'">
+                  {{ admin()?.status | titlecase }}
+                </span>
+              </div>
+            </div>
+
+          </div>
+
+          @if (isOwnProfile) {
+            <span class="badge bg-light text-dark border">Your Account</span>
+          }
+
+        </div>
+
+        <div class="card-body p-4">
+
+          <div class="row g-4">
+
+            <!-- Personal -->
+            <div class="col-md-6">
+              <div class="section-label">Personal Information</div>
+
+              <table class="table table-sm table-borderless mb-0">
+                <tbody>
+                  <tr>
+                    <td class="text-muted">Civility</td>
+                    <td class="fw-semibold">{{ admin()?.civility }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-muted">First Name</td>
+                    <td class="fw-semibold">{{ admin()?.first_name }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-muted">Last Name</td>
+                    <td class="fw-semibold">{{ admin()?.last_name }}</td>
+                  </tr>
+                  <tr>
+                    <td class="text-muted">Phone</td>
+                    <td class="fw-semibold">{{ admin()?.phone || '—' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Account -->
+            <div class="col-md-6">
+              <div class="section-label">Account Information</div>
+
+              <table class="table table-sm table-borderless mb-0">
+                <tbody>
+                  <tr>
+                    <td class="text-muted">Email</td>
+                    <td class="fw-semibold">{{ admin()?.email }}</td>
+                  </tr>
+
+                  <tr>
+                    <td class="text-muted">Role</td>
+                    <td>
+                      <span [ngClass]="getRoleBadgeClass(admin()!.role)">
+                        {{ getRoleLabel(admin()!.role) }}
+                      </span>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td class="text-muted">Status</td>
+                    <td>
+                      <span class="badge"
+                            [ngClass]="admin()?.status === 'active' ? 'bg-success' : 'bg-secondary'">
+                        {{ admin()?.status | titlecase }}
+                      </span>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td class="text-muted">Created</td>
+                    <td class="fw-semibold">{{ admin()?.created_at | date:'mediumDate' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    }
+
+    @else {
+
+      <!-- ═══ EDIT MODE ═══════════════════════════════ -->
+      <div class="card">
+
+        <div class="card-header bg-primary text-white">
+          ✏️ Edit — {{ admin()?.first_name }} {{ admin()?.last_name }}
+        </div>
+
+        <div class="card-body p-4">
+
+          <form [formGroup]="editForm" (ngSubmit)="onUpdate()" novalidate>
+
+            <div class="row g-3">
+
+              <div class="col-md-3">
+                <label class="form-label">Civility *</label>
+                <select class="form-select"
+                        formControlName="civility"
+                        [class.is-invalid]="isInvalid('civility')">
+                  @for (c of civilityOptions; track c) {
+                    <option [value]="c">{{ c }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">First Name *</label>
+                <input class="form-control"
+                       formControlName="first_name"
+                       [class.is-invalid]="isInvalid('first_name')" />
+              </div>
+
+              <div class="col-md-5">
+                <label class="form-label">Last Name *</label>
+                <input class="form-control"
+                       formControlName="last_name"
+                       [class.is-invalid]="isInvalid('last_name')" />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Email *</label>
+                <input class="form-control"
+                       formControlName="email"
+                       [class.is-invalid]="isInvalid('email')" />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Phone</label>
+                <input class="form-control" formControlName="phone" />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Role *</label>
+                <select class="form-select" formControlName="role">
+                  @for (r of roleOptions; track r.value) {
+                    <option [value]="r.value">{{ r.label }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Status *</label>
+                <select class="form-select" formControlName="status">
+                  @for (s of statusOptions; track s.value) {
+                    <option [value]="s.value">{{ s.label }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">
+                  New Password
+                  <span class="text-muted">(optional)</span>
+                </label>
+
+                <input type="password"
+                       class="form-control"
+                       formControlName="password" />
+              </div>
+
+            </div>
+
+            <div class="d-flex gap-2 mt-4 pt-3 border-top">
+              <button class="btn btn-primary"
+                      type="submit"
+                      [disabled]="updateLoading()">
+                {{ updateLoading() ? 'Saving...' : '💾 Save Changes' }}
+              </button>
+
+              <button type="button"
+                      class="btn btn-outline-secondary"
+                      (click)="toggleEditMode()">
+                Cancel
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+      </div>
+
+    }
+
+  }
+
+</div>
