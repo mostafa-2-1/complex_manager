@@ -1,0 +1,306 @@
+{
+  "info": {
+    "name": "Residential Complex Manager API",
+    "_postman_id": "8f7d4c9a-collection",
+    "description": "Assessment API collection matching project requirements.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "complex_admin_id",
+      "value": ""
+    },
+    {
+      "key": "building_admin_id",
+      "value": ""
+    },
+    {
+      "key": "complex_id",
+      "value": ""
+    },
+    {
+      "key": "building_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@system.com\",\n  \"password\": \"Admin123!\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if(jsonData.data && jsonData.data.token){",
+                  "pm.collectionVariables.set('token', jsonData.data.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admins",
+      "item": [
+        {
+          "name": "Get Admins",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/admins?page=1&per_page=10"
+          }
+        },
+        {
+          "name": "Create Complex Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/admins",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"civility\": \"Mr\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Complex\",\n  \"email\": \"complex.admin@example.com\",\n  \"phone\": \"70123456\",\n  \"role\": \"complex_admin\",\n  \"status\": \"active\",\n  \"password\": \"Password123!\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d=pm.response.json(); if(d.data&&d.data.id){pm.collectionVariables.set('complex_admin_id',d.data.id);}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Building Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/admins",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"civility\": \"Mr\",\n  \"first_name\": \"Mike\",\n  \"last_name\": \"Building\",\n  \"email\": \"building.admin@example.com\",\n  \"phone\": \"71123456\",\n  \"role\": \"building_admin\",\n  \"status\": \"active\",\n  \"password\": \"Password123!\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d=pm.response.json(); if(d.data&&d.data.id){pm.collectionVariables.set('building_admin_id',d.data.id);}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Complexes",
+      "item": [
+        {
+          "name": "Get Complexes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/complexes"
+          }
+        },
+        {
+          "name": "Create Complex",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/complexes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Green Valley Complex\",\n  \"address\": \"Main Road\",\n  \"city\": \"Tripoli\",\n  \"postal_code\": \"1300\",\n  \"campaign_name\": \"Summer Campaign\",\n  \"campaign_start_date\": \"2026-06-01\",\n  \"campaign_end_date\": \"2026-08-31\",\n  \"admin_id\": \"{{complex_admin_id}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d=pm.response.json(); if(d.data&&d.data.id){pm.collectionVariables.set('complex_id',d.data.id);}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Complex Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/complexes/{{complex_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Buildings",
+      "item": [
+        {
+          "name": "Get Buildings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/buildings"
+          }
+        },
+        {
+          "name": "Filter Buildings by Complex",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/buildings?complex_id={{complex_id}}"
+          }
+        },
+        {
+          "name": "Create Building",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/buildings",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Tower A\",\n  \"address\": \"Green Valley Complex\",\n  \"floors\": 12,\n  \"units\": 48,\n  \"complex_id\": \"{{complex_id}}\",\n  \"admin_id\": \"{{building_admin_id}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d=pm.response.json(); if(d.data&&d.data.id){pm.collectionVariables.set('building_id',d.data.id);}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Building Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/buildings/{{building_id}}"
+          }
+        },
+        {
+          "name": "Delete Building",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/buildings/{{building_id}}"
+          }
+        }
+      ]
+    }
+  ]
+}
